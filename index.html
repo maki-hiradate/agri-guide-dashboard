@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriGuide Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="dashboard">
+        <!-- ヘッダー部分 -->
+        <div class="header">
+            <h1>AgriGuide Dashboard</h1>
+            <div class="status">システム正常</div>
+        </div>
+
+        <!-- LEDバー -->
+        <div class="led-bar">
+            <div class="led active"></div>
+            <div class="led active"></div>
+            <div class="led active"></div>
+            <div class="led active"></div>
+            <div class="led active"></div>
+            <div class="led"></div>
+            <div class="led"></div>
+            <div class="led"></div>
+            <div class="led"></div>
+            <div class="led"></div>
+        </div>
+
+        <!-- メインコンテンツ -->
+        <div class="main-content">
+            <!-- 左側：メーター表示 -->
+            <div class="meters">
+                <div class="meter-card">
+                    <h2>速度</h2>
+                    <div class="meter-value" id="speed">0.0</div>
+                    <div class="meter-unit">km/h</div>
+                </div>
+
+                <div class="meter-card">
+                    <h2>距離</h2>
+                    <div class="meter-value" id="distance">0.0</div>
+                    <div class="meter-unit">m</div>
+                </div>
+            </div>
+
+            <!-- 右側：走行エリア表示 -->
+            <div class="field-display">
+                <canvas id="fieldCanvas" width="400" height="300"></canvas>
+            </div>
+        </div>
+
+        <!-- コントロールボタン -->
+        <div class="controls">
+            <button class="btn btn-start" id="startBtn">開始</button>
+            <button class="btn btn-stop" id="stopBtn">停止</button>
+            <button class="btn btn-reset" id="resetBtn">リセット</button>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
