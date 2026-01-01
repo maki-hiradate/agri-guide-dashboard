@@ -1,121 +1,158 @@
 # AgriGuide Dashboard
 
-農業機械用ガイダンスシステムのシミュレーター
+**農業機械用ガイダンスシステム - リアルタイム走行データ可視化ダッシュボード**
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)](https://www.ecma-international.org/)
+[![Leaflet](https://img.shields.io/badge/Leaflet-1.9.4-green)](https://leafletjs.com/)
+[![Chart.js](https://img.shields.io/badge/Chart.js-4.4.1-blue)](https://www.chartjs.org/)
+
+## 📖 概要
+
+AgriGuide Dashboardは、農業機械の走行データをリアルタイムで可視化するWebアプリケーションです。GPS位置情報、速度、走行距離をインタラクティブな地図とグラフで表示し、効率的な農作業をサポートします。
+
+### 🎯 主な機能
+
+- **リアルタイム地図表示** - Leaflet.jsを使用した現在位置の可視化
+- **走行データメーター** - 速度・距離のリアルタイム表示
+- **履歴データグラフ** - Chart.jsによる速度・距離の推移可視化
+- **操作パネル** - 計測の開始・停止・リセット機能
+- **レスポンシブデザイン** - PC・タブレット・スマートフォン対応
+
+## 🖼️ スクリーンショット
 
 ![AgriGuide Dashboard](screenshot.png)
-
-## 📋 プロジェクト概要
-
-このプロジェクトは、農業機械（トラクター等）に搭載されるガイダンスシステムのダッシュボードをWebベースで再現したものです。リアルタイムでのデータ表示、走行経路の可視化、インタラクティブな操作が可能です。
-
-## 🎯 開発目的
-
-- **開発エンジニア**: フロントエンド技術（HTML/CSS/JavaScript）の実践
-- **インフラエンジニア**: 将来的なバックエンド/クラウド連携の基盤
-- **組み込みエンジニア**: ハードウェア（Raspberry Pi等）との連携を想定した設計
-
-## ✨ 主な機能
-
-### 現在実装済み
-- ✅ リアルタイム速度・距離表示
-- ✅ LEDバーによる視覚的なステータス表示
-- ✅ Canvas を使った走行経路の可視化
-- ✅ インタラクティブな操作（開始/停止/リセット）
-- ✅ レスポンシブデザイン
-
-### 今後実装予定
-- 🔲 バックエンドAPI（Node.js/Express）
-- 🔲 データベース連携（センサーデータの保存）
-- 🔲 WebSocketによるリアルタイム通信
-- 🔲 Raspberry Pi + GPSモジュールとの連携
-- 🔲 地図ライブラリ（Leaflet.js）の統合
-- 🔲 クラウドデプロイ（AWS/GCP）
 
 ## 🛠️ 技術スタック
 
 ### フロントエンド
-- HTML5
-- CSS3
-- Vanilla JavaScript
-- Canvas API
+- **HTML5** - セマンティックなマークアップ
+- **CSS3** - Flexbox/Gridレイアウト、カスタムプロパティ
+- **JavaScript (ES6)** - モダンな非同期処理とDOM操作
 
-### 将来的に使用予定
-- Node.js / Express
-- SQLite / PostgreSQL
-- WebSocket
-- Leaflet.js
-- Raspberry Pi
-- GPS モジュール
+### ライブラリ
+- **[Leaflet.js 1.9.4](https://leafletjs.com/)** - インタラクティブ地図表示
+- **[Chart.js 4.4.1](https://www.chartjs.org/)** - データ可視化（折れ線・棒グラフ）
+- **[OpenStreetMap](https://www.openstreetmap.org/)** - 地図タイルプロバイダー
 
-## 🚀 セットアップ方法
+### バックエンド連携
+- **REST API** - Java Servlet (Tomcat) との通信
+- **JSON** - データ交換フォーマット
+- **Fetch API** - 非同期データ取得
 
-1. リポジトリをクローン
-```bash
-git clone https://github.com/[あなたのユーザー名]/agri-guide-dashboard.git
-cd agri-guide-dashboard
-```
+## 📁 プロジェクト構成
 
-2. ブラウザで `index.html` を開く
-```bash
-# Windowsの場合
-start index.html
-
-# Macの場合
-open index.html
-
-# Linuxの場合
-xdg-open index.html
-```
-
-3. 「開始」ボタンをクリックして動作確認
-
-## 📂 プロジェクト構造
 ```
 agri-guide-dashboard/
-├── css/
-│   └── style.css        # スタイルシート
-├── js/
-│   └── app.js           # アプリケーションロジック
-├── index.html           # メインHTML
-└── README.md            # このファイル
+├── index.html           # メインHTMLファイル
+├── CSS/
+│   └── style.css       # スタイルシート
+├── JS/
+│   └── app.js          # メインJavaScript
+├── screenshot.png      # プロジェクトスクリーンショット
+└── README.md           # このファイル
 ```
 
-## 🎨 デザインコンセプト
+## 🚀 セットアップ
 
-実際の農業機械用ディスプレイ（CFX-750等）を参考に、視認性の高いUIを設計。暗い背景に明るい文字とグリーンのアクセントカラーを使用し、屋外での使用を想定した配色にしています。
+### 前提条件
 
-## 📈 開発ロードマップ
+- **Python 3.x** - ローカルサーバー起動用
+- **Webブラウザ** - Chrome, Firefox, Edge など（モダンブラウザ推奨）
+- **バックエンドサーバー** - [agri-guide-backend](https://github.com/maki-hiradate/agri-guide-backend) が起動していること
 
-### フェーズ1（完了）✅
-- 基本UIの作成
-- データ表示機能
-- 走行経路の可視化
+### インストール手順
 
-### フェーズ2（2週目予定）
-- バックエンドAPI開発
-- データベース連携
-- WebSocket実装
+1. **リポジトリのクローン**
+   ```bash
+   git clone https://github.com/maki-hiradate/agri-guide-dashboard.git
+   cd agri-guide-dashboard
+   ```
 
-### フェーズ3（将来）
-- Raspberry Pi連携
-- 実際のGPSデータ取得
-- クラウドデプロイ
+2. **ローカルサーバーの起動**
+   ```bash
+   python -m http.server 8000
+   ```
 
-## 🔧 カスタマイズ
+3. **ブラウザでアクセス**
+   ```
+   http://localhost:8000/index.html
+   ```
 
-`js/app.js` で以下のパラメータを調整できます：
-- 最大速度
-- 走行経路の更新頻度
-- LEDバーの感度
+## 🔧 設定
 
-## 📝 ライセンス
+### APIエンドポイントの変更
 
-MIT License
+`JS/app.js` の以下の部分を編集：
 
-## 👤 作成者
+```javascript
+// センサーデータAPI
+fetch('http://localhost:8080/agri-guide-backend/api/sensor-data')
 
-[あなたの名前]
+// 履歴データAPI
+fetch('http://localhost:8080/agri-guide-backend/api/history-data')
+```
+
+### 地図の初期位置変更
+
+`JS/app.js` の `initMap()` 関数内：
+
+```javascript
+const map = L.map('map').setView([36.5, 138.5], 13); // [緯度, 経度], ズームレベル
+```
+
+## 📊 データフロー
+
+```
+ブラウザ (localhost:8000)
+    ↓ Fetch API
+Tomcat (localhost:8080)
+    ↓ JDBC
+MySQL (agriguide_db)
+    ↓
+trip_data テーブル
+```
+
+## 🎨 デザイン仕様
+
+### カラーパレット
+- **プライマリ** - `#1e3c72` (ダークブルー)
+- **セカンダリ** - `#2a5298` (ブルー)
+- **アクセント** - `#3498db` (ライトブルー)
+- **背景** - `#2c3e50` (ダークグレー)
+
+### レスポンシブブレークポイント
+- **PC** - 1200px以上
+- **タブレット** - 768px〜1199px
+- **スマートフォン** - 767px以下
+
+## 📈 今後の拡張予定
+
+- [ ] WebSocket通信によるリアルタイム更新
+- [ ] 走行軌跡の記録・再生機能
+- [ ] データエクスポート機能（CSV, JSON）
+- [ ] 複数機械の同時管理
+- [ ] ハードウェア連携（Raspberry Pi + GPS）
+
+## 🤝 コントリビューション
+
+プルリクエストを歓迎します。大きな変更の場合は、まずIssueを開いて変更内容を議論してください。
+
+## 📄 ライセンス
+
+[MIT License](LICENSE)
+
+## 👤 作者
+
+**Maki Hiradate**
+- GitHub: [@maki-hiradate](https://github.com/maki-hiradate)
 
 ## 🙏 謝辞
 
-このプロジェクトは就職活動用のポートフォリオとして作成されました。
+- [Leaflet](https://leafletjs.com/) - 優れた地図ライブラリ
+- [Chart.js](https://www.chartjs.org/) - 使いやすいグラフライブラリ
+- [OpenStreetMap](https://www.openstreetmap.org/) - オープンな地図データ
+
+---
+
+**Built with ❤️ for Smart Agriculture**
