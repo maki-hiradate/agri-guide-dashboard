@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AgriGuide Dashboard</title>
     <link rel="stylesheet" href="css/style.css">
+    <!-- Leaflet.js CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet.js JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
     <div class="dashboard">
@@ -45,9 +51,9 @@
                 </div>
             </div>
 
-            <!-- 右側：走行エリア表示 -->
+            <!-- 右側：地図表示 -->
             <div class="field-display">
-                <canvas id="fieldCanvas" width="400" height="300"></canvas>
+                <div id="map" style="width: 100%; height: 100%;"></div>
             </div>
         </div>
 
@@ -56,6 +62,18 @@
             <button class="btn btn-start" id="startBtn">開始</button>
             <button class="btn btn-stop" id="stopBtn">停止</button>
             <button class="btn btn-reset" id="resetBtn">リセット</button>
+        </div>
+
+        <!-- グラフ表示エリア -->
+        <div class="charts-container">
+            <div class="chart-box">
+                <h3>速度の推移</h3>
+                <canvas id="speedChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <h3>距離の推移</h3>
+                <canvas id="distanceChart"></canvas>
+            </div>
         </div>
     </div>
 

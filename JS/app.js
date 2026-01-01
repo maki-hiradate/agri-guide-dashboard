@@ -4,10 +4,6 @@ let distance = 0;
 let isRunning = false;
 let animationId = null;
 
-// Canvas設定
-const canvas = document.getElementById('fieldCanvas');
-const ctx = canvas.getContext('2d');
-
 // 走行経路の座標
 let path = [];
 let currentX = 50;
@@ -21,8 +17,9 @@ const stopBtn = document.getElementById('stopBtn');
 const resetBtn = document.getElementById('resetBtn');
 const leds = document.querySelectorAll('.led');
 
-// 初期描画
-drawField();
+// グラフ用の変数（グローバルで保持）
+let speedChart = null;
+let distanceChart = null;
 
 // ボタンイベント
 startBtn.addEventListener('click', start);
@@ -54,7 +51,6 @@ function reset() {
     currentX = 50;
     currentY = 150;
     updateDisplay();
-    drawField();
     updateLEDs(0);
 }
 
@@ -73,12 +69,6 @@ function animate() {
     // 表示を更新
     updateDisplay();
 
-    // 走行経路を更新
-    updatePath();
-
-    // フィールドを再描画
-    drawField();
-
     // LEDバーを更新
     updateLEDs(speed);
 
@@ -90,79 +80,6 @@ function animate() {
 function updateDisplay() {
     speedDisplay.textContent = speed.toFixed(1);
     distanceDisplay.textContent = distance.toFixed(1);
-}
-
-// 走行経路を更新
-function updatePath() {
-    // 右に移動
-    currentX += 2;
-    
-    // 画面端に来たら折り返し
-    if (currentX > canvas.width - 50) {
-        currentX = 50;
-        currentY += 20;
-        
-        // 下端に来たらリセット
-        if (currentY > canvas.height - 50) {
-            currentY = 50;
-        }
-    }
-
-    path.push({ x: currentX, y: currentY });
-
-    // 経路が長すぎたら古い部分を削除
-    if (path.length > 200) {
-        path.shift();
-    }
-}
-
-// フィールドを描画
-function drawField() {
-    // 背景をクリア
-    ctx.fillStyle = '#0a0a0a';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // グリッド線を描画
-    ctx.strokeStyle = '#1a3a1a';
-    ctx.lineWidth = 1;
-
-    // 縦線
-    for (let x = 0; x < canvas.width; x += 40) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-        ctx.stroke();
-    }
-
-    // 横線
-    for (let y = 0; y < canvas.height; y += 40) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
-        ctx.stroke();
-    }
-
-    // 走行経路を描画
-    if (path.length > 1) {
-        ctx.strokeStyle = '#27ae60';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(path[0].x, path[0].y);
-        
-        for (let i = 1; i < path.length; i++) {
-            ctx.lineTo(path[i].x, path[i].y);
-        }
-        
-        ctx.stroke();
-    }
-
-    // 現在位置を描画（赤い点）
-    if (path.length > 0) {
-        ctx.fillStyle = '#e74c3c';
-        ctx.beginPath();
-        ctx.arc(currentX, currentY, 5, 0, Math.PI * 2);
-        ctx.fill();
-    }
 }
 
 // LEDバーを更新
@@ -177,3 +94,197 @@ function updateLEDs(currentSpeed) {
         }
     });
 }
+
+// バックエンドから現在のセンサーデータを取得
+function fetchSensorData() {
+    fetch('http://localhost:8080/agri-guide-backend/api/sensor-data')
+        .then(response => response.text())
+        .then(data => {
+            const values = data.split(',');
+            speed = parseFloat(values[0]);
+            distance = parseFloat(values[1]);
+            updateDisplay();
+            console.log('センサーデータ取得:', speed, distance);
+        })
+        .catch(error => console.error('センサーデータ取得エラー:', error));
+}
+
+// バックエンドから履歴データを取得してグラフを更新
+function fetchHistoryData() {
+    fetch('http://localhost:8080/agri-guide-backend/api/history-data')
+        .then(response => response.json())
+        .then(data => {
+            console.log('履歴データ取得:', data);
+            
+            // データが空の場合は何もしない
+            if (!data || data.length === 0) {
+                console.log('履歴データが空です');
+                return;
+            }
+            
+            // 新しい順に取得されるので、古い順に並び替え
+            data.reverse();
+            
+            // ラベル（ID または タイムスタンプ）
+            const labels = data.map((item, index) => `${index + 1}`);
+            
+            // 速度データ
+            const speedData = data.map(item => item.speed);
+            
+            // 距離データ
+            const distanceData = data.map(item => item.distance);
+            
+            // グラフを更新
+            if (speedChart) {
+                speedChart.data.labels = labels;
+                speedChart.data.datasets[0].data = speedData;
+                speedChart.update();
+            }
+            
+            if (distanceChart) {
+                distanceChart.data.labels = labels;
+                distanceChart.data.datasets[0].data = distanceData;
+                distanceChart.update();
+            }
+        })
+        .catch(error => console.error('履歴データ取得エラー:', error));
+}
+
+// 3秒ごとにセンサーデータを取得
+setInterval(fetchSensorData, 3000);
+
+// 初回実行
+fetchSensorData();
+
+// ========================================
+// 地図の初期化
+// ========================================
+
+// 地図の作成（日本の中心付近）
+const map = L.map('map').setView([36.0, 138.0], 6);
+
+// OpenStreetMapのタイルレイヤーを追加
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 18
+}).addTo(map);
+
+// サンプルの走行ルート（圃場を想定）
+const routeCoordinates = [
+    [36.5, 138.5],
+    [36.51, 138.51],
+    [36.52, 138.52],
+    [36.53, 138.51],
+    [36.54, 138.50],
+    [36.55, 138.49]
+];
+
+// ルートを描画（青い線）
+const route = L.polyline(routeCoordinates, {
+    color: 'blue',
+    weight: 4,
+    opacity: 0.7
+}).addTo(map);
+
+// 地図の表示範囲をルートに合わせる
+map.fitBounds(route.getBounds());
+
+// スタート地点にマーカーを追加
+L.marker(routeCoordinates[0]).addTo(map)
+    .bindPopup('スタート地点')
+    .openPopup();
+
+// ゴール地点にマーカーを追加
+L.marker(routeCoordinates[routeCoordinates.length - 1]).addTo(map)
+    .bindPopup('ゴール地点');
+
+// ========================================
+// グラフの初期化
+// ========================================
+
+// DOMが読み込まれてから実行
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // 速度グラフの作成
+    const speedCtx = document.getElementById('speedChart').getContext('2d');
+    speedChart = new Chart(speedCtx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: '速度 (km/h)',
+                data: [],
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#fff'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#fff' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                x: {
+                    ticks: { color: '#fff' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                }
+            }
+        }
+    });
+    
+    // 距離グラフの作成
+    const distanceCtx = document.getElementById('distanceChart').getContext('2d');
+    distanceChart = new Chart(distanceCtx, {
+        type: 'bar',
+        data: {
+            labels: [],
+            datasets: [{
+                label: '距離 (m)',
+                data: [],
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgb(54, 162, 235)',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#fff'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#fff' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                },
+                x: {
+                    ticks: { color: '#fff' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                }
+            }
+        }
+    });
+    
+    // 初回の履歴データを取得
+    fetchHistoryData();
+    
+    // 10秒ごとに履歴データを更新
+    setInterval(fetchHistoryData, 10000);
+});
